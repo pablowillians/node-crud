@@ -1,0 +1,40 @@
+version: '3.6'
+
+x-env-vars: &env-vars
+  MYSQL_USER: cruduser
+  MYSQL_PASSWORD: crudpass
+  MYSQL_ROOT_PASSWORD: passroot
+  MYSQL_DATABASE: nodecrud
+  MYSQL_HOST: db
+  REDIS_HOST: redis
+  NODE_PORT: 8080
+
+services:
+  web:
+    build: .
+    command: yarn run start
+    restart: always
+    volumes:
+      - .:/opt/app/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+    environment:
+      << : *env-vars
+
+  db:
+    image: mysql
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+    environment:
+      << : *env-vars
+
+  redis:
+    image: redis:alpine
+    restart: always
+    environment:
+      << : *env-vars
+    
